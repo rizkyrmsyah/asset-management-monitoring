@@ -2,8 +2,7 @@ package main
 
 import (
 	"asset-tracker/database"
-	"asset-tracker/middleware"
-	"asset-tracker/usecase"
+	"asset-tracker/handler"
 	"database/sql"
 	"fmt"
 	"os"
@@ -43,12 +42,8 @@ func main() {
 	defer DB.Close()
 
 	router := gin.Default()
-
-	user := router.Group("/user")
-	user.POST("/register", usecase.RegisterUser)
-	user.POST("/login", usecase.LoginUser)
-
-	user.PUT("/", middleware.AuthUser(), usecase.UpdateProfile)
+	handler.UserHandler(router)
+	handler.AssetHandler(router)
 
 	router.Run(os.Getenv("APP_HOST") + ":" + os.Getenv("APP_PORT"))
 }

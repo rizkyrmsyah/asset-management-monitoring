@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"strconv"
@@ -16,84 +17,44 @@ import (
 	"asset-tracker/repository"
 )
 
-func RegisterUser(c *gin.Context) {
-	var user model.User
-
-	err := c.ShouldBindJSON(&user)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
+func RegisterUser(c *gin.Context, user model.User) (err error) {
 	hashedPassword, err := helper.Bcrypt(user.Password)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
+		return errors.New(err.Error())
 	}
 
 	user.Password = hashedPassword
 	err = repository.AddUser(database.DbConnection, user)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "Email sudah terdaftar di sistem kami",
-		})
-		return
+		return errors.New("email sudah terdaftar di sistem kami")
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "registrasi berhasil",
-	})
+	return
 }
 
-func LoginUser(c *gin.Context) {
-	var loginRequest model.LoginRequest
-	var loginResponse model.LoginResponse
-	var err error
-
-	err = c.ShouldBindJSON(&loginRequest)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
+func LoginUser(c *gin.Context, loginRequest model.LoginRequest) (loginResponse *model.LoginResponse, err error) {
 	inputPassword := loginRequest.Password
 	user, err := repository.FindUserByEmail(database.DbConnection, loginRequest.Email)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "Email atau password yang kamu masukkan kurang tepat.",
-		})
-		return
+		return nil, errors.New("email atau password yang kamu masukkan kurang tepat")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(inputPassword))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "Email atau password yang kamu masukkan kurang tepat.",
-		})
-		return
+		return nil, errors.New("email atau password yang kamu masukkan kurang tepat")
 	}
 
 	accessToken, exp, err := createAccessToken(user)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-		return
+		return nil, errors.New(err.Error())
 	}
 
-	loginResponse.AccessToken = accessToken
-	loginResponse.Exp = exp
+	res := &model.LoginResponse{
+		AccessToken: accessToken,
+		Exp:         exp,
+	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		"data":    loginResponse,
-	})
+	return res, nil
 }
 
 func createAccessToken(user *model.User) (accessToken string, exp int64, err error) {
@@ -118,25 +79,11 @@ func createAccessToken(user *model.User) (accessToken string, exp int64, err err
 	return
 }
 
-func UpdateProfile(c *gin.Context) {
-	var user model.UpdateProfileRequest
-	var err error
-
-	err = c.ShouldBindJSON(&user)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
+func UpdateProfile(c *gin.Context, user model.UpdateProfileRequest) (err error) {
 	if user.Password != nil {
 		hashedPassword, err := helper.Bcrypt(*user.Password)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"message": err.Error(),
-			})
-			return
+			return errors.New(err.Error())
 		}
 		user.Password = &hashedPassword
 	}
@@ -146,13 +93,28 @@ func UpdateProfile(c *gin.Context) {
 
 	err = repository.UpdateUser(database.DbConnection, user)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
+		return errors.New(err.Error())
+	}
+
+	return
+}
+
+func GetUserProfile(c *gin.Context) {
+	sessionData := c.MustGet("session").(*model.JwtCustomClaims)
+	user, err := repository.FindUserByEmail(database.DbConnection, sessionData.Email)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Email atau password yang kamu masukkan kurang tepat.",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "update profile berhasil",
+		"message": "success",
+		"data": map[string]interface{}{
+			"id":    user.ID,
+			"name":  user.Name,
+			"email": user.Email,
+		},
 	})
 }
