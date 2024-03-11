@@ -13,7 +13,7 @@ func AddAsset(db *sql.DB, asset model.Asset) (err error) {
 }
 
 func GetAllAsset(db *sql.DB) (assets []model.Asset, err error) {
-	sql := "SELECT * FROM assets ORDER BY name ASC"
+	sql := "SELECT * FROM assets WHERE deleted_at IS NULL ORDER BY name ASC"
 	rows, err := db.Query(sql)
 	if err != nil {
 		return
@@ -39,7 +39,7 @@ func GetAssetById(db *sql.DB, id int) (asset *model.AssetDetail, err error) {
 	var assetControlHistory model.AssetControlHistory
 	var assetControlHistoryData []model.AssetControlHistory
 
-	sql := "SELECT * FROM assets WHERE id = $1"
+	sql := "SELECT * FROM assets WHERE id = $1 AND deleted_at IS NULL"
 	err = db.QueryRow(sql, id).Scan(&assetDetail.ID, &assetDetail.Name, &assetDetail.Code, &assetDetail.InDate, &assetDetail.Source, &assetDetail.CreatedAt, &assetDetail.UpdatedAt, &assetDetail.DeletedAt)
 	if err != nil {
 		return nil, err
@@ -72,4 +72,18 @@ func GetAssetById(db *sql.DB, id int) (asset *model.AssetDetail, err error) {
 	assetDetail.ControlHistories = &assetControlHistoryData
 
 	return &assetDetail, nil
+}
+
+func UpdateAsset(db *sql.DB, asset model.Asset) (err error) {
+	sql := "UPDATE assets SET name = $2, code = $3, in_date = $4, source = $5, updated_at = NOW() WHERE id = $1"
+	errs := db.QueryRow(sql, asset.ID, asset.Name, asset.Code, asset.InDate, asset.Source)
+
+	return errs.Err()
+}
+
+func DeleteAsset(db *sql.DB, assetId int) (err error) {
+	sql := "UPDATE assets SET deleted_at = NOW() WHERE id = $1"
+	errs := db.QueryRow(sql, assetId)
+
+	return errs.Err()
 }

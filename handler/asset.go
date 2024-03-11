@@ -15,8 +15,8 @@ func AssetHandler(router *gin.Engine) {
 	asset.POST("/", handleCreateAsset)
 	asset.GET("/", handleGetAllAsset)
 	asset.GET("/:id", hanleDetailAsset)
-	// asset.PUT("/:id", usecase.UpdateProfile)
-	// asset.DELETE("/:id", usecase.UpdateProfile)
+	asset.PUT("/:id", handleUpdateAsset)
+	asset.DELETE("/:id", handleDeleteAsset)
 }
 
 func handleCreateAsset(c *gin.Context) {
@@ -61,7 +61,7 @@ func handleGetAllAsset(c *gin.Context) {
 func hanleDetailAsset(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
 		return
@@ -78,5 +78,58 @@ func hanleDetailAsset(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 		"data":    res,
+	})
+}
+
+func handleUpdateAsset(c *gin.Context) {
+	var asset model.Asset
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = c.ShouldBindJSON(&asset)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	asset.ID = id
+	err = usecase.UpdateAsset(c, asset)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ubah asset berhasil",
+	})
+}
+
+func handleDeleteAsset(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	err = usecase.DeleteAsset(c, id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "hapus asset berhasil",
 	})
 }

@@ -41,3 +41,27 @@ func DetailAsset(c *gin.Context, assetId int) (assets *model.AssetDetail, err er
 
 	return
 }
+
+func UpdateAsset(c *gin.Context, asset model.Asset) (err error) {
+	time, err := time.Parse("2006-01-02", asset.InDate)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+
+	asset.InDate = time.Format("2006-01-02")
+	err = repository.UpdateAsset(database.DbConnection, asset)
+	if err != nil {
+		return errors.New("kode asset sudah terdaftar")
+	}
+
+	return
+}
+
+func DeleteAsset(c *gin.Context, assetId int) (err error) {
+	err = repository.DeleteAsset(database.DbConnection, assetId)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+
+	return
+}
