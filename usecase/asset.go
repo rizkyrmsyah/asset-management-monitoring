@@ -23,3 +23,12 @@ func CreateAsset(c *gin.Context, asset model.Asset) (err error) {
 
 	return
 }
+
+func GetAllAsset(c *gin.Context) (assets []model.Asset, err error) {
+	assets, err = repository.GetAllAsset(database.DbConnection)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	return
+}

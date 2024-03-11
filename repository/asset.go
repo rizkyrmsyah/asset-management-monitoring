@@ -11,3 +11,25 @@ func AddAsset(db *sql.DB, asset model.Asset) (err error) {
 
 	return errs.Err()
 }
+
+func GetAllAsset(db *sql.DB) (assets []model.Asset, err error) {
+	sql := "SELECT * FROM assets ORDER BY name ASC"
+	rows, err := db.Query(sql)
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var assetData = model.Asset{}
+		err = rows.Scan(&assetData.ID, &assetData.Name, &assetData.Code, &assetData.InDate, &assetData.Source, &assetData.CreatedAt, &assetData.UpdatedAt, &assetData.DeletedAt)
+		if err != nil {
+			return
+		}
+
+		assets = append(assets, assetData)
+	}
+
+	return
+}
