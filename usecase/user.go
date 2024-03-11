@@ -65,8 +65,8 @@ func LoginUser(c *gin.Context) {
 	inputPassword := loginRequest.Password
 	user, err := repository.FindUserByEmail(database.DbConnection, loginRequest.Email)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Email atau password yang kamu masukkan kurang tepat.",
 		})
 		return
 	}
@@ -116,4 +116,43 @@ func createAccessToken(user *model.User) (accessToken string, exp int64, err err
 	accessToken, err = token.SignedString([]byte(jwtSecret))
 
 	return
+}
+
+func UpdateProfile(c *gin.Context) {
+	var user model.UpdateProfileRequest
+	var err error
+
+	err = c.ShouldBindJSON(&user)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if user.Password != nil {
+		hashedPassword, err := helper.Bcrypt(*user.Password)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+		user.Password = &hashedPassword
+	}
+
+	sessionData := c.MustGet("session").(*model.JwtCustomClaims)
+	user.ID = sessionData.ID
+
+	err = repository.UpdateUser(database.DbConnection, user)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "update profile berhasil",
+	})
 }

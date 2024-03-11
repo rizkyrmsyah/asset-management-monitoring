@@ -2,6 +2,7 @@ package main
 
 import (
 	"asset-tracker/database"
+	"asset-tracker/middleware"
 	"asset-tracker/usecase"
 	"database/sql"
 	"fmt"
@@ -46,6 +47,8 @@ func main() {
 	user := router.Group("/user")
 	user.POST("/register", usecase.RegisterUser)
 	user.POST("/login", usecase.LoginUser)
+
+	user.PUT("/", middleware.AuthUser(), usecase.UpdateProfile)
 
 	router.Run(os.Getenv("APP_HOST") + ":" + os.Getenv("APP_PORT"))
 }

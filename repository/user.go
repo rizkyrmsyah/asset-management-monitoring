@@ -15,11 +15,27 @@ func AddUser(db *sql.DB, user model.User) (err error) {
 func FindUserByEmail(db *sql.DB, email string) (user *model.User, err error) {
 	var usr model.User
 
-	sql := "SELECT id, email, password FROM users WHERE email = $1"
-	err = db.QueryRow(sql, email).Scan(&usr.ID, &usr.Email, &usr.Password)
+	sql := "SELECT id, email, name, password FROM users WHERE email = $1"
+	err = db.QueryRow(sql, email).Scan(&usr.ID, &usr.Email, &usr.Name, &usr.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	return &usr, nil
+}
+
+func UpdateUser(db *sql.DB, user model.UpdateProfileRequest) (err error) {
+	var sql string
+
+	if user.Password != nil {
+		sql = "UPDATE users SET name = $2, email = $3, password = $4 WHERE id = $1"
+		errs := db.QueryRow(sql, user.ID, user.Name, user.Email, user.Password)
+		err = errs.Err()
+	} else {
+		sql = "UPDATE users SET name = $2, email = $3 WHERE id = $1"
+		errs := db.QueryRow(sql, user.ID, user.Name, user.Email)
+		err = errs.Err()
+	}
+
+	return
 }
