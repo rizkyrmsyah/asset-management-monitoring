@@ -32,3 +32,12 @@ func GetAllAsset(c *gin.Context) (assets []model.Asset, err error) {
 
 	return
 }
+
+func DetailAsset(c *gin.Context, assetId int) (assets *model.AssetDetail, err error) {
+	assets, err = repository.GetAssetById(database.DbConnection, assetId)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	return
+}

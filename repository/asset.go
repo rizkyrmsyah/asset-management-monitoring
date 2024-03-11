@@ -33,3 +33,43 @@ func GetAllAsset(db *sql.DB) (assets []model.Asset, err error) {
 
 	return
 }
+
+func GetAssetById(db *sql.DB, id int) (asset *model.AssetDetail, err error) {
+	var assetDetail model.AssetDetail
+	var assetControlHistory model.AssetControlHistory
+	var assetControlHistoryData []model.AssetControlHistory
+
+	sql := "SELECT * FROM assets WHERE id = $1"
+	err = db.QueryRow(sql, id).Scan(&assetDetail.ID, &assetDetail.Name, &assetDetail.Code, &assetDetail.InDate, &assetDetail.Source, &assetDetail.CreatedAt, &assetDetail.UpdatedAt, &assetDetail.DeletedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	sql2 := "SELECT * FROM asset_control_histories WHERE asset_id = $1 ORDER BY id DESC"
+	rows, err := db.Query(sql2, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(
+			&assetControlHistory.ID,
+			&assetControlHistory.AssetID,
+			&assetControlHistory.UserID,
+			&assetControlHistory.Status,
+			&assetControlHistory.Notes,
+			&assetControlHistory.CreatedAt,
+			&assetControlHistory.UpdatedAt,
+		)
+		if err != nil {
+			return
+		}
+		assetControlHistoryData = append(assetControlHistoryData, assetControlHistory)
+	}
+
+	assetDetail.ControlHistories = &assetControlHistoryData
+
+	return &assetDetail, nil
+}
