@@ -23,7 +23,7 @@ func GetAllAsset(db *sql.DB) (assets []model.Asset, err error) {
 
 	for rows.Next() {
 		var assetData = model.Asset{}
-		err = rows.Scan(&assetData.ID, &assetData.Name, &assetData.Code, &assetData.InDate, &assetData.Source, &assetData.CreatedAt, &assetData.UpdatedAt, &assetData.DeletedAt)
+		err = rows.Scan(&assetData.ID, &assetData.LocationID, &assetData.Name, &assetData.Code, &assetData.InDate, &assetData.Source, &assetData.CreatedAt, &assetData.UpdatedAt, &assetData.DeletedAt)
 		if err != nil {
 			return
 		}
