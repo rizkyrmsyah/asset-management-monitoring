@@ -47,5 +47,5 @@ func main() {
 	handler.AssetHandler(router)
 	handler.AssetMonitoringHandler(router)
 
-	router.Run(os.Getenv("APP_HOST") + ":" + os.Getenv("APP_PORT"))
+	router.Run(os.Getenv("HOST") + ":" + os.Getenv("PORT"))
 }
