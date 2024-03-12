@@ -40,7 +40,7 @@ func GetDetailAssetByAssetId(db *sql.DB, id int) (asset *model.AssetDetail, err 
 	var AssetMonitoringHistoryData []model.AssetMonitoringHistory
 
 	sql := "SELECT * FROM assets WHERE id = $1 AND deleted_at IS NULL"
-	err = db.QueryRow(sql, id).Scan(&assetDetail.ID, &assetDetail.Name, &assetDetail.Code, &assetDetail.InDate, &assetDetail.Source, &assetDetail.CreatedAt, &assetDetail.UpdatedAt, &assetDetail.DeletedAt)
+	err = db.QueryRow(sql, id).Scan(&assetDetail.ID, &assetDetail.LocationID, &assetDetail.Name, &assetDetail.Code, &assetDetail.InDate, &assetDetail.Source, &assetDetail.CreatedAt, &assetDetail.UpdatedAt, &assetDetail.DeletedAt)
 	if err != nil {
 		return nil, err
 	}
