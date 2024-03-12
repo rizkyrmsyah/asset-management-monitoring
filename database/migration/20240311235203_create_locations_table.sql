@@ -1,13 +1,12 @@
 -- +migrate Up
 -- +migrate StatementBegin
 
-CREATE TABLE asset_mutations (
+CREATE TABLE locations (
     id SERIAL PRIMARY KEY,
-    asset_id INTEGER,
-    type VARCHAR,
-    notes VARCHAR,
+    name VARCHAR,
     created_at timestamptz,
-    updated_at timestamptz
+    updated_at timestamptz,
+    deleted_at timestamptz
 )
 
 -- +migrate StatementEnd

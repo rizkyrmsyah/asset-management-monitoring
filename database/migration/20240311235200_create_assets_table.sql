@@ -3,8 +3,9 @@
 
 CREATE TABLE assets (
     id SERIAL PRIMARY KEY,
+    location_id INTEGER NOT NULL,
     name VARCHAR,
-    code VARCHAR UNIQUE,
+    code VARCHAR UNIQUE NOT NULL,
     in_date DATE,
     source VARCHAR,
     created_at timestamptz,

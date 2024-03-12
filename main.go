@@ -43,6 +43,7 @@ func main() {
 
 	router := gin.Default()
 	handler.UserHandler(router)
+	handler.LocationHandler(router)
 	handler.AssetHandler(router)
 	handler.AssetMonitoringHandler(router)
 

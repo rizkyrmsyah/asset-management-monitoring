@@ -11,9 +11,9 @@ import (
 )
 
 func AssetMonitoringHandler(router *gin.Engine) {
-	asset := router.Group("/monitoring").Use(middleware.AuthUser())
-	asset.POST("/", handleSubmitMonitoring)
-	asset.DELETE("/:id", handleDeleteMonitoring)
+	monitoring := router.Group("/monitoring").Use(middleware.AuthUser())
+	monitoring.POST("/", handleSubmitMonitoring)
+	monitoring.DELETE("/:id", handleDeleteMonitoring)
 }
 
 func handleSubmitMonitoring(c *gin.Context) {

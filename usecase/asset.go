@@ -11,6 +11,11 @@ import (
 )
 
 func CreateAsset(c *gin.Context, asset model.Asset) (err error) {
+	location, err := repository.GetLocationById(database.DbConnection, asset.LocationID)
+	if err != nil || location == nil {
+		return errors.New("lokasi tidak ditemukan")
+	}
+
 	time, err := time.Parse("2006-01-02", asset.InDate)
 	if err != nil {
 		return errors.New(err.Error())
