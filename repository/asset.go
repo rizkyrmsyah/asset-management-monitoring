@@ -6,8 +6,8 @@ import (
 )
 
 func AddAsset(db *sql.DB, asset model.Asset) (err error) {
-	sql := "INSERT INTO assets (name, code, in_date, source, created_at, updated_at) VALUES ($1 ,$2, $3, $4, NOW(), NOW())"
-	errs := db.QueryRow(sql, asset.Name, asset.Code, asset.InDate, asset.Source)
+	sql := "INSERT INTO assets (name, code, in_date, source, location_id, created_at, updated_at) VALUES ($1 ,$2, $3, $4, $5, NOW(), NOW())"
+	errs := db.QueryRow(sql, asset.Name, asset.Code, asset.InDate, asset.Source, asset.LocationID)
 
 	return errs.Err()
 }
@@ -75,8 +75,8 @@ func GetDetailAssetByAssetId(db *sql.DB, id int) (asset *model.AssetDetail, err 
 }
 
 func UpdateAsset(db *sql.DB, asset model.Asset) (err error) {
-	sql := "UPDATE assets SET name = $2, code = $3, in_date = $4, source = $5, updated_at = NOW() WHERE id = $1"
-	errs := db.QueryRow(sql, asset.ID, asset.Name, asset.Code, asset.InDate, asset.Source)
+	sql := "UPDATE assets SET name = $2, code = $3, in_date = $4, source = $5, location_id= $6, updated_at = NOW() WHERE id = $1"
+	errs := db.QueryRow(sql, asset.ID, asset.Name, asset.Code, asset.InDate, asset.Source, asset.LocationID)
 
 	return errs.Err()
 }
