@@ -44,6 +44,7 @@ func main() {
 	router := gin.Default()
 	handler.UserHandler(router)
 	handler.AssetHandler(router)
+	handler.AssetMonitoringHandler(router)
 
 	router.Run(os.Getenv("APP_HOST") + ":" + os.Getenv("APP_PORT"))
 }

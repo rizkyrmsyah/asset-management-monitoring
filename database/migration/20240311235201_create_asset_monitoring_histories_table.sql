@@ -1,7 +1,7 @@
 -- +migrate Up
 -- +migrate StatementBegin
 
-CREATE TABLE asset_control_histories (
+CREATE TABLE asset_monitoring_histories (
     id SERIAL PRIMARY KEY,
     asset_id INTEGER,
     user_id INTEGER,
