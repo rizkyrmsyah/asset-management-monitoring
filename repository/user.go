@@ -24,6 +24,18 @@ func FindUserByEmail(db *sql.DB, email string) (user *model.User, err error) {
 	return &usr, nil
 }
 
+func FindUserById(db *sql.DB, id int) (user *model.User, err error) {
+	var usr model.User
+
+	sql := "SELECT id, email, name, password FROM users WHERE id = $1"
+	err = db.QueryRow(sql, id).Scan(&usr.ID, &usr.Email, &usr.Name, &usr.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &usr, nil
+}
+
 func UpdateUser(db *sql.DB, user model.UpdateProfileRequest) (err error) {
 	var sql string
 

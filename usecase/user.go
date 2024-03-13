@@ -101,7 +101,7 @@ func UpdateProfile(c *gin.Context, user model.UpdateProfileRequest) (err error) 
 
 func GetUserProfile(c *gin.Context) {
 	sessionData := c.MustGet("session").(*model.JwtCustomClaims)
-	user, err := repository.FindUserByEmail(database.DbConnection, sessionData.Email)
+	user, err := repository.FindUserById(database.DbConnection, sessionData.ID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "Email atau password yang kamu masukkan kurang tepat.",
